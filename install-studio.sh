@@ -13,18 +13,26 @@ sleep 1
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp MacHelper/.build/release/DashCamStudio "$APP/Contents/MacOS/DashCamStudio"
 
-# Icon: generated once from the shared camera+car mark.
-if [ ! -f "$APP/Contents/Resources/AppIcon.icns" ]; then
-  TMP=$(mktemp -d)
-  swift Tools/make_icon.swift "$TMP/icon.png" >/dev/null
-  mkdir -p "$TMP/icon.iconset"
-  for size in 16 32 64 128 256 512; do
-    sips -z $size $size "$TMP/icon.png" --out "$TMP/icon.iconset/icon_${size}x${size}.png" >/dev/null 2>&1
-    sips -z $((size*2)) $((size*2)) "$TMP/icon.png" --out "$TMP/icon.iconset/icon_${size}x${size}@2x.png" >/dev/null 2>&1
-  done
-  iconutil -c icns "$TMP/icon.iconset" -o "$APP/Contents/Resources/AppIcon.icns"
-  rm -rf "$TMP"
+# Icon: the black-and-yellow Icon Composer document, compiled on every install so a
+# redesign reaches an existing copy. Needs Xcode 26's actool (not just Command Line Tools).
+# IBToolNeverDeque=1 keeps actool off an ibtoold daemon another build may have started.
+if ! xcrun --find actool >/dev/null 2>&1; then
+  export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
 fi
+ICON_TMP=$(mktemp -d)
+rm -f "$APP/Contents/Resources/AppIcon.icns" "$APP/Contents/Resources/Assets.car"
+IBToolNeverDeque=1 xcrun actool MacHelper/AppIcon.icon \
+  --compile "$APP/Contents/Resources" \
+  --platform macosx --minimum-deployment-target 14.0 \
+  --app-icon AppIcon \
+  --output-partial-info-plist "$ICON_TMP/icon-info.plist" >"$ICON_TMP/actool.log" 2>&1
+# actool exits 0 even when it fails, so check that it produced the icon.
+if [ ! -f "$APP/Contents/Resources/AppIcon.icns" ]; then
+  cat "$ICON_TMP/actool.log"
+  echo "Icon compile failed (needs Xcode 26)." >&2
+  exit 1
+fi
+rm -rf "$ICON_TMP"
 
 cat > "$APP/Contents/Info.plist" <<'PLIST'
 <?xml version="1.0" encoding="UTF-8"?>
@@ -35,6 +43,7 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
 	<key>CFBundleDisplayName</key><string>DashCam Studio</string>
 	<key>CFBundleExecutable</key><string>DashCamStudio</string>
 	<key>CFBundleIconFile</key><string>AppIcon</string>
+	<key>CFBundleIconName</key><string>AppIcon</string>
 	<key>CFBundleIdentifier</key><string>com.cjcombs.dashcamstudio</string>
 	<key>CFBundleInfoDictionaryVersion</key><string>6.0</string>
 	<key>CFBundleName</key><string>DashCam Studio</string>
@@ -52,5 +61,7 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
 PLIST
 
 codesign --force --deep --sign - "$APP" >/dev/null 2>&1
+# Nudge Finder and the Dock to drop the cached old icon.
+touch "$APP"
 echo "Installed. Launching…"
 open "$APP"
