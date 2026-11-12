@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "folder": "DASHCAM-iPhone",
+  "apps": [
+    {
+      "name": "DashCam Studio",
+      "platform": "mac",
+      "bundleId": "com.cjcombs.dashcamstudio",
+      "install": "install-mac.sh",
+      "summary": "Receives footage from the DashCam iPhone app and labels it for road memory and training"
+    }
+  ]
+}
