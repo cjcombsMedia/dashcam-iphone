@@ -1,0 +1,73 @@
+{
+  "color-space-for-untagged-svg-colors": "display-p3",
+  "fill-specializations": [
+    {
+      "value": {
+        "linear-gradient": [
+          "display-p3:0.17000,0.17000,0.17000,1.00000",
+          "display-p3:0.02000,0.02000,0.02000,1.00000"
+        ],
+        "orientation": {
+          "start": {
+            "x": 0.5,
+            "y": 0
+          },
+          "stop": {
+            "x": 0.5,
+            "y": 1
+          }
+        }
+      }
+    },
+    {
+      "appearance": "dark",
+      "value": {
+        "linear-gradient": [
+          "display-p3:0.14000,0.14000,0.14000,1.00000",
+          "display-p3:0.01000,0.01000,0.01000,1.00000"
+        ],
+        "orientation": {
+          "start": {
+            "x": 0.5,
+            "y": 0
+          },
+          "stop": {
+            "x": 0.5,
+            "y": 1
+          }
+        }
+      }
+    }
+  ],
+  "groups": [
+    {
+      "layers": [
+        {
+          "glass": true,
+          "image-name": "body-white.svg",
+          "name": "Camera and Car"
+        },
+        {
+          "glass": true,
+          "image-name": "lens-yellow.svg",
+          "name": "Lens"
+        }
+      ],
+      "lighting": "combined",
+      "name": "Mark",
+      "shadow": {
+        "kind": "neutral",
+        "opacity": 0.5
+      },
+      "translucency": {
+        "enabled": false,
+        "value": 0
+      }
+    }
+  ],
+  "supported-platforms": {
+    "squares": [
+      "macOS"
+    ]
+  }
+}
